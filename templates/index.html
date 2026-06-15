@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIZLI-indir</title>
+<style>
+  :root {
+    --bg:      #0f172a;
+    --surface: #1e293b;
+    --border:  #334155;
+    --accent:  #6366f1;
+    --accent2: #818cf8;
+    --text:    #e2e8f0;
+    --muted:   #64748b;
+    --success: #22c55e;
+    --error:   #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    background: #1a1a2e;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
+  header span { font-size: .85rem; color: var(--muted); }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 20px;
+    gap: 4px;
+  }
+  .tab-btn {
+    padding: 12px 22px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: .95rem;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+  }
+  .tab-btn:hover  { color: var(--text); }
+  .tab-btn.active { color: #fff; border-bottom-color: var(--accent); }
+
+  /* ── Main ── */
+  main { flex: 1; padding: 28px 20px; max-width: 700px; margin: 0 auto; width: 100%; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .card label {
+    display: block;
+    font-size: .8rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  /* ── Inputs ── */
+  .input-row { display: flex; gap: 8px; }
+  input[type=text], input[type=url] {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: .95rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  input[type=text]:focus, input[type=url]:focus { border-color: var(--accent); }
+
+  /* ── Radio group ── */
+  .radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
+  .radio-group label {
+    display: flex; align-items: center; gap: 7px;
+    cursor: pointer; font-size: .95rem;
+    color: var(--text); text-transform: none; letter-spacing: 0;
+  }
+  input[type=radio] { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  /* ── File drop ── */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .drop-zone:hover, .drop-zone.over {
+    border-color: var(--accent);
+    background: rgba(99,102,241,.06);
+  }
+  .drop-zone .icon { font-size: 2rem; margin-bottom: 8px; }
+  .drop-zone p    { color: var(--muted); font-size: .9rem; }
+  .drop-zone .filename { color: var(--accent2); font-weight: 600; margin-top: 6px; }
+
+  /* ── Buttons ── */
+  .btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, opacity .2s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent2); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-sm {
+    width: auto;
+    padding: 9px 16px;
+    font-size: .85rem;
+    background: var(--border);
+    color: var(--text);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .btn-sm:hover { background: #475569; }
+
+  /* ── Status ── */
+  .status-box {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: .9rem;
+    display: none;
+  }
+  .status-box.running { background: rgba(99,102,241,.15); border: 1px solid var(--accent); color: var(--accent2); }
+  .status-box.done    { background: rgba(34,197,94,.12);  border: 1px solid var(--success); color: var(--success); }
+  .status-box.error   { background: rgba(239,68,68,.12);  border: 1px solid var(--error);   color: var(--error); }
+
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--accent2);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 14px;
+    color: var(--muted);
+    font-size: .8rem;
+    font-style: italic;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📥 XVidiX</h1>
+  <span>YouTube · Instagram · X</span>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('youtube', this)">▶ YouTube</button>
+  <button class="tab-btn" onclick="switchTab('instagram', this)">📷 Instagram</button>
+  <button class="tab-btn" onclick="switchTab('x', this)">𝕏 X / Twitter</button>
+</div>
+
+<main>
+
+  <!-- ── YouTube ── -->
+  <div id="tab-youtube" class="tab-panel active">
+    <div class="card">
+      <label>Video Bağlantısı</label>
+      <div class="input-row">
+        <input type="url" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
+        <button class="btn-sm" onclick="paste('yt-url')">Yapıştır</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>Format</label>
+      <div class="radio-group">
+        <label><input type="radio" name="yt-fmt" value="mp4" checked> MP4 (Video)</label>
+        <label><input type="radio" name="yt-fmt" value="mp3"> MP3 (Ses)</label>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startDownload('youtube')">⬇ İndir</button>
+    <div id="yt-status" class="status-box"></div>
+  </div>
+
+  <!-- ── Instagram ── -->
+  <div id="tab-instagram" class="tab-panel">
+    <div class="card">
+      <label>Gönderi / Reels Bağlantısı</label>
+      <div class="input-row">
+        <input type="url" id="ig-url" placeholder="https://www.instagram.com/p/... veya /reel/...">
+        <button class="btn-sm" onclick="paste('ig-url')">Yapıştır</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>Format</label>
+      <div class="radio-group">
+        <label><input type="radio" name="ig-fmt" value="best" checked> Video (MP4)</label>
+        <label><input type="radio" name="ig-fmt" value="mp3"> Ses (MP3)</label>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startDownload('instagram')">⬇ İndir</button>
+    <div id="ig-status" class="status-box"></div>
+  </div>
+
+  <!-- ── X ── -->
+  <div id="tab-x" class="tab-panel">
+    <div class="card">
+      <label>Tweet / Post Bağlantısı</label>
+      <div class="input-row">
+        <input type="url" id="x-url" placeholder="https://x.com/... veya https://twitter.com/...">
+        <button class="btn-sm" onclick="paste('x-url')">Yapıştır</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>Format</label>
+      <div class="radio-group">
+        <label><input type="radio" name="x-fmt" value="best" checked> Video (MP4)</label>
+        <label><input type="radio" name="x-fmt" value="mp3"> Ses (MP3)</label>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startDownload('x')">⬇ İndir</button>
+    <div id="x-status" class="status-box"></div>
+  </div>
+
+</main>
+
+<footer>Ergin Melekşah &nbsp;·&nbsp; XVidiX &nbsp;·&nbsp; yt-dlp tabanlı</footer>
+
+<script>
+// ── Tab geçişi ────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Yapıştır ─────────────────────────────────────────────────────
+async function paste(id) {
+  try {
+    const txt = await navigator.clipboard.readText();
+    document.getElementById(id).value = txt.trim();
+  } catch { alert('Panoya erişim izni gerekiyor — manuel yapıştırın (Ctrl+V)'); }
+}
+
+// ── Video indirme ─────────────────────────────────────────────────
+async function startDownload(platform) {
+  const urlMap = { youtube: 'yt-url', instagram: 'ig-url', x: 'x-url' };
+  const url    = document.getElementById(urlMap[platform]).value.trim();
+  const fmt    = document.querySelector(`input[name="${platform === 'youtube' ? 'yt' : platform}-fmt"]:checked`)?.value || 'best';
+  const statusEl = document.getElementById(platform === 'youtube' ? 'yt-status' : platform === 'instagram' ? 'ig-status' : 'x-status');
+
+  if (!url) { showStatus(statusEl, 'error', '⚠ URL boş olamaz'); return; }
+
+  showStatus(statusEl, 'running', 'İndiriliyor…');
+
+  const res  = await fetch('/api/download', {
+    method : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body   : JSON.stringify({ url, fmt, platform }),
+  });
+  const data = await res.json();
+  if (data.error) { showStatus(statusEl, 'error', data.error); return; }
+
+  pollJob(data.job_id, statusEl);
+}
+
+// ── Polling & indirme ─────────────────────────────────────────────
+function pollJob(jid, statusEl) {
+  const iv = setInterval(async () => {
+    const r = await fetch('/api/status/' + jid);
+    const d = await r.json();
+
+    if (d.status === 'error') {
+      clearInterval(iv);
+      showStatus(statusEl, 'error', '❌ ' + d.msg);
+      return;
+    }
+    if (d.ready) {
+      clearInterval(iv);
+      showStatus(statusEl, 'done',
+        `✓ ${d.msg} &nbsp; <a href="/api/file/${jid}" style="color:#818cf8;font-weight:600;">⬇ Dosyayı İndir</a>`
+      );
+      // Otomatik indir
+      const a = document.createElement('a');
+      a.href = '/api/file/' + jid;
+      a.click();
+    } else {
+      showStatus(statusEl, 'running', `<span class="spinner"></span> ${d.msg}`);
+    }
+  }, 1200);
+}
+
+// ── Yardımcı ─────────────────────────────────────────────────────
+function showStatus(el, type, html) {
+  el.style.display = 'block';
+  el.className = 'status-box ' + type;
+  el.innerHTML = html;
+}
+</script>
+</body>
+</html>
